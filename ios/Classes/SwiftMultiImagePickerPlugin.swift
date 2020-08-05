@@ -62,6 +62,14 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin {
             }
             
             let vc = BSImagePickerViewController()
+
+            let fetchOptions = PHFetchOptions()
+            let cameraRollResult = PHAssetCollection.fetchAssetCollections(with: .smartAlbum, subtype: .smartAlbumUserLibrary, options: fetchOptions)
+            let albumResult = PHAssetCollection.fetchAssetCollections(with: .album, subtype: .any, options: fetchOptions)
+            let favorites = PHAssetCollection.fetchAssetCollections(with: .smartAlbum, subtype: .smartAlbumFavorites, options: fetchOptions)
+            let selfies = PHAssetCollection.fetchAssetCollections(with: .smartAlbum, subtype: .smartAlbumSelfPortraits, options: fetchOptions)
+
+            vc.fetchResults = [cameraRollResult, favorites, albumResult, selfies]
             
             if #available(iOS 13.0, *) {
                 // Disables iOS 13 swipe to dismiss - to force user to press cancel or done.
