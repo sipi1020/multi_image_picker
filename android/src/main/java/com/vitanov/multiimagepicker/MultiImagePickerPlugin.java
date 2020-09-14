@@ -83,6 +83,7 @@ public class MultiImagePickerPlugin implements
     public static void registerWith(Registrar registrar) {
         MultiImagePickerPlugin instance = new MultiImagePickerPlugin();
         instance.onAttachedToEngine(registrar.context(), registrar.messenger(), registrar.activity());
+        registrar.addActivityResultListener(instance);
     }
 
     private void onAttachedToEngine(Context applicationContext, BinaryMessenger binaryMessenger, Activity activity) {
@@ -387,8 +388,6 @@ public class MultiImagePickerPlugin implements
                     ExifInterface.TAG_GPS_DEST_DISTANCE_REF,
                     ExifInterface.TAG_GPS_DEST_LATITUDE_REF,
                     ExifInterface.TAG_GPS_DEST_LONGITUDE_REF,
-                    ExifInterface.TAG_GPS_DOP,
-                    ExifInterface.TAG_GPS_IMG_DIRECTION,
                     ExifInterface.TAG_GPS_IMG_DIRECTION_REF,
                     ExifInterface.TAG_GPS_MAP_DATUM,
                     ExifInterface.TAG_GPS_MEASURE_MODE,
@@ -438,6 +437,8 @@ public class MultiImagePickerPlugin implements
                     ExifInterface.TAG_GPS_DEST_LATITUDE,
                     ExifInterface.TAG_GPS_DEST_LONGITUDE,
                     ExifInterface.TAG_GPS_DIFFERENTIAL,
+                    ExifInterface.TAG_GPS_DOP,
+                    ExifInterface.TAG_GPS_IMG_DIRECTION,
                     ExifInterface.TAG_GPS_SPEED,
                     ExifInterface.TAG_GPS_TRACK,
                     ExifInterface.TAG_JPEG_INTERCHANGE_FORMAT,

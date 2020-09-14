@@ -11,7 +11,7 @@ extension PHAsset {
         
         if #available(iOS 9.0, *) {
             let resources = PHAssetResource.assetResources(for: self)
-            if let resource = resources.first {
+            if let resource = resources.last {
                 fname = resource.originalFilename
             }
         }
@@ -40,6 +40,8 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin {
 
     let genericError = "500"
 
+    let vc = BSImagePickerViewController()
+
     init(messenger: FlutterBinaryMessenger) {
         self.messenger = messenger;
         super.init();
@@ -61,6 +63,7 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin {
                 return result(FlutterError(code: "PERMISSION_PERMANENTLY_DENIED", message: "The user has denied the gallery access.", details: nil))
             }
             
+<<<<<<< HEAD
             let vc = BSImagePickerViewController()
 
             let fetchOptions = PHFetchOptions()
@@ -70,6 +73,8 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin {
             let selfies = PHAssetCollection.fetchAssetCollections(with: .smartAlbum, subtype: .smartAlbumSelfPortraits, options: fetchOptions)
 
             vc.fetchResults = [cameraRollResult, favorites, albumResult, selfies]
+=======
+>>>>>>> upstream/master
             
             if #available(iOS 13.0, *) {
                 // Disables iOS 13 swipe to dismiss - to force user to press cancel or done.
@@ -142,7 +147,7 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin {
                     if let autoCloseOnSelectionLimit = options["autoCloseOnSelectionLimit"] {
                         if (!autoCloseOnSelectionLimit.isEmpty && autoCloseOnSelectionLimit == "true") {
                             if (maxImages == totalImagesSelected) {
-                                UIApplication.shared.sendAction(vc.doneButton.action!, to: vc.doneButton.target, from: self, for: nil)
+                                UIApplication.shared.sendAction(self.vc.doneButton.action!, to: self.vc.doneButton.target, from: self, for: nil)
                             }
                         }
                     }
