@@ -1,7 +1,7 @@
 import Flutter
 import UIKit
 import Photos
-import BSImagePicker
+//import BSImagePicker
 
 extension PHAsset {
     
@@ -65,11 +65,13 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin {
             
             let vc = BSImagePickerViewController()
 
-            let fetchOptions = PHFetchOptions()
-            let cameraRollResult = PHAssetCollection.fetchAssetCollections(with: .smartAlbum, subtype: .smartAlbumUserLibrary, options: fetchOptions)
-            let albumResult = PHAssetCollection.fetchAssetCollections(with: .album, subtype: .any, options: fetchOptions)
-            let favorites = PHAssetCollection.fetchAssetCollections(with: .smartAlbum, subtype: .smartAlbumFavorites, options: fetchOptions)
-            let selfies = PHAssetCollection.fetchAssetCollections(with: .smartAlbum, subtype: .smartAlbumSelfPortraits, options: fetchOptions)
+
+            let cameraRollResult = PHAssetCollection.fetchAssetCollections(with: .smartAlbum, subtype: .smartAlbumUserLibrary, options: nil)
+
+            let albumResult = PHAssetCollection.fetchAssetCollections(with: .album, subtype: .any, options: nil)
+            let favorites = PHAssetCollection.fetchAssetCollections(with: .smartAlbum, subtype: .smartAlbumFavorites, options: nil)
+            let selfies = PHAssetCollection.fetchAssetCollections(with: .smartAlbum, subtype: .smartAlbumSelfPortraits, options: nil)
+                        
 
             vc.fetchResults = [cameraRollResult, favorites, albumResult, selfies]
             
