@@ -62,110 +62,20 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin {
             if (status == PHAuthorizationStatus.denied) {
                 return result(FlutterError(code: "PERMISSION_PERMANENTLY_DENIED", message: "The user has denied the gallery access.", details: nil))
             }
-            
-            let vc = BSImagePickerViewController()
-
-
-            let cameraRollResult = PHAssetCollection.fetchAssetCollections(with: .smartAlbum, subtype: .smartAlbumUserLibrary, options: nil)
-
-            let albumResult = PHAssetCollection.fetchAssetCollections(with: .album, subtype: .any, options: nil)
-            let favorites = PHAssetCollection.fetchAssetCollections(with: .smartAlbum, subtype: .smartAlbumFavorites, options: nil)
-            let selfies = PHAssetCollection.fetchAssetCollections(with: .smartAlbum, subtype: .smartAlbumSelfPortraits, options: nil)
-                        
-
-            vc.fetchResults = [cameraRollResult, favorites, albumResult, selfies]
-            
-            if #available(iOS 13.0, *) {
-                // Disables iOS 13 swipe to dismiss - to force user to press cancel or done.
-                vc.isModalInPresentation = true
-            }
-            let arguments = call.arguments as! Dictionary<String, AnyObject>
-            let maxImages = arguments["maxImages"] as! Int
-            let enableCamera = arguments["enableCamera"] as! Bool
-            let options = arguments["iosOptions"] as! Dictionary<String, String>
-            let selectedAssets = arguments["selectedAssets"] as! Array<String>
-            var totalImagesSelected = 0
-            
-            vc.maxNumberOfSelections = maxImages
-
-            if (enableCamera) {
-                vc.takePhotos = true
-            }
-            
-            if selectedAssets.count > 0 {
-                let assets: PHFetchResult = PHAsset.fetchAssets(withLocalIdentifiers: selectedAssets, options: nil)
-                vc.defaultSelections = assets
-            }
-
-            if let takePhotoIcon = options["takePhotoIcon"] {
-                if (!takePhotoIcon.isEmpty) {
-                    vc.takePhotoIcon = UIImage(named: takePhotoIcon)
-                }
-            }
-
-            if let backgroundColor = options["backgroundColor"] {
-                if (!backgroundColor.isEmpty) {
-                    vc.backgroundColor = hexStringToUIColor(hex: backgroundColor)
-                }
-            }
-
-            if let selectionFillColor = options["selectionFillColor"] {
-                if (!selectionFillColor.isEmpty) {
-                    vc.selectionFillColor = hexStringToUIColor(hex: selectionFillColor)
-                }
-            }
-
-            if let selectionShadowColor = options["selectionShadowColor"] {
-                if (!selectionShadowColor.isEmpty) {
-                    vc.selectionShadowColor = hexStringToUIColor(hex: selectionShadowColor)
-                }
-            }
-
-            if let selectionStrokeColor = options["selectionStrokeColor"] {
-                if (!selectionStrokeColor.isEmpty) {
-                    vc.selectionStrokeColor = hexStringToUIColor(hex: selectionStrokeColor)
-                }
-            }
-
-            if let selectionTextColor = options["selectionTextColor"] {
-                if (!selectionTextColor.isEmpty) {
-                    vc.selectionTextAttributes[NSAttributedString.Key.foregroundColor] = hexStringToUIColor(hex: selectionTextColor)
-                }
-            }
-
-            if let selectionCharacter = options["selectionCharacter"] {
-                if (!selectionCharacter.isEmpty) {
-                    vc.selectionCharacter = Character(selectionCharacter)
-                }
-            }
-
-            UIViewController.topViewController()?.bs_presentImagePickerController(vc, animated: true,
-                select: { (asset: PHAsset) -> Void in
-                    totalImagesSelected += 1
-                    
-                    if let autoCloseOnSelectionLimit = options["autoCloseOnSelectionLimit"] {
-                        if (!autoCloseOnSelectionLimit.isEmpty && autoCloseOnSelectionLimit == "true") {
-                            if (maxImages == totalImagesSelected) {
-                                UIApplication.shared.sendAction(self.vc.doneButton.action!, to: self.vc.doneButton.target, from: self, for: nil)
-                            }
+            else if status == PHAuthorizationStatus.notDetermined{
+                PHPhotoLibrary.requestAuthorization { (status) in
+                    if status == .authorized{
+                        DispatchQueue.main.async {
+                            self.pickImage(call: call, result: result)
                         }
                     }
-                }, deselect: { (asset: PHAsset) -> Void in
-                    totalImagesSelected -= 1
-                }, cancel: { (assets: [PHAsset]) -> Void in
-                    result(FlutterError(code: "CANCELLED", message: "The user has cancelled the selection", details: nil))
-                }, finish: { (assets: [PHAsset]) -> Void in
-                    var results = [NSDictionary]();
-                    for asset in assets {
-                        results.append([
-                            "identifier": asset.localIdentifier,
-                            "width": asset.pixelWidth,
-                            "height": asset.pixelHeight,
-                            "name": asset.originalFilename!
-                        ]);
-                    }
-                    result(results);
-                }, completion: nil)
+                }
+            }
+            else{
+                pickImage(call: call, result: result)
+            }
+            
+            
             break;
         case "requestThumbnail":
             let arguments = call.arguments as! Dictionary<String, AnyObject>
@@ -301,5 +211,112 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin {
             blue: CGFloat(rgbValue & 0x0000FF) / 255.0,
             alpha: CGFloat(1.0)
         )
+    }
+    
+    
+    func pickImage(call:FlutterMethodCall, result: @escaping FlutterResult){
+        let vc = BSImagePickerViewController()
+        
+        
+        let cameraRollResult = PHAssetCollection.fetchAssetCollections(with: .smartAlbum, subtype: .smartAlbumUserLibrary, options: nil)
+        
+        let albumResult = PHAssetCollection.fetchAssetCollections(with: .album, subtype: .any, options: nil)
+        let favorites = PHAssetCollection.fetchAssetCollections(with: .smartAlbum, subtype: .smartAlbumFavorites, options: nil)
+        let selfies = PHAssetCollection.fetchAssetCollections(with: .smartAlbum, subtype: .smartAlbumSelfPortraits, options: nil)
+        
+        
+        vc.fetchResults = [cameraRollResult, favorites, albumResult, selfies]
+        
+        if #available(iOS 13.0, *) {
+            // Disables iOS 13 swipe to dismiss - to force user to press cancel or done.
+            vc.isModalInPresentation = true
+        }
+        let arguments = call.arguments as! Dictionary<String, AnyObject>
+        let maxImages = arguments["maxImages"] as! Int
+        let enableCamera = arguments["enableCamera"] as! Bool
+        let options = arguments["iosOptions"] as! Dictionary<String, String>
+        let selectedAssets = arguments["selectedAssets"] as! Array<String>
+        var totalImagesSelected = 0
+        
+        vc.maxNumberOfSelections = maxImages
+        
+        if (enableCamera) {
+            vc.takePhotos = true
+        }
+        
+        if selectedAssets.count > 0 {
+            let assets: PHFetchResult = PHAsset.fetchAssets(withLocalIdentifiers: selectedAssets, options: nil)
+            vc.defaultSelections = assets
+        }
+        
+        if let takePhotoIcon = options["takePhotoIcon"] {
+            if (!takePhotoIcon.isEmpty) {
+                vc.takePhotoIcon = UIImage(named: takePhotoIcon)
+            }
+        }
+        
+        if let backgroundColor = options["backgroundColor"] {
+            if (!backgroundColor.isEmpty) {
+                vc.backgroundColor = hexStringToUIColor(hex: backgroundColor)
+            }
+        }
+        
+        if let selectionFillColor = options["selectionFillColor"] {
+            if (!selectionFillColor.isEmpty) {
+                vc.selectionFillColor = hexStringToUIColor(hex: selectionFillColor)
+            }
+        }
+        
+        if let selectionShadowColor = options["selectionShadowColor"] {
+            if (!selectionShadowColor.isEmpty) {
+                vc.selectionShadowColor = hexStringToUIColor(hex: selectionShadowColor)
+            }
+        }
+        
+        if let selectionStrokeColor = options["selectionStrokeColor"] {
+            if (!selectionStrokeColor.isEmpty) {
+                vc.selectionStrokeColor = hexStringToUIColor(hex: selectionStrokeColor)
+            }
+        }
+        
+        if let selectionTextColor = options["selectionTextColor"] {
+            if (!selectionTextColor.isEmpty) {
+                vc.selectionTextAttributes[NSAttributedString.Key.foregroundColor] = hexStringToUIColor(hex: selectionTextColor)
+            }
+        }
+        
+        if let selectionCharacter = options["selectionCharacter"] {
+            if (!selectionCharacter.isEmpty) {
+                vc.selectionCharacter = Character(selectionCharacter)
+            }
+        }
+        
+        UIViewController.topViewController()?.bs_presentImagePickerController(vc, animated: true,
+                                                                              select: { (asset: PHAsset) -> Void in
+                                                                                totalImagesSelected += 1
+                                                                                
+                                                                                if let autoCloseOnSelectionLimit = options["autoCloseOnSelectionLimit"] {
+                                                                                    if (!autoCloseOnSelectionLimit.isEmpty && autoCloseOnSelectionLimit == "true") {
+                                                                                        if (maxImages == totalImagesSelected) {
+                                                                                            UIApplication.shared.sendAction(self.vc.doneButton.action!, to: self.vc.doneButton.target, from: self, for: nil)
+                                                                                        }
+                                                                                    }
+                                                                                }
+        }, deselect: { (asset: PHAsset) -> Void in
+            totalImagesSelected -= 1
+        }, cancel: { (assets: [PHAsset]) -> Void in
+            result(FlutterError(code: "CANCELLED", message: "The user has cancelled the selection", details: nil))
+        }, finish: { (assets: [PHAsset]) -> Void in
+            var results = [NSDictionary]();
+            for asset in assets {
+                results.append([
+                    "identifier": asset.localIdentifier,
+                    "width": asset.pixelWidth,
+                    "height": asset.pixelHeight,
+                    "name": asset.originalFilename!
+                ]);
+            }
+            result(results);
+        }, completion: nil)
     }
 }
