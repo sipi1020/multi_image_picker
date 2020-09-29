@@ -123,7 +123,7 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin {
             let options = PHImageRequestOptions()
 
             options.deliveryMode = PHImageRequestOptionsDeliveryMode.highQualityFormat
-            options.isSynchronous = false
+            options.isSynchronous = true
             options.isNetworkAccessAllowed = true
             options.version = .current
 
@@ -134,12 +134,12 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin {
 
                 let ID: PHImageRequestID = manager.requestImage(
                     for: asset,
-                    targetSize: CGSize(width: asset.pixelWidth, height: asset.pixelHeight),
+                    targetSize: PHImageManagerMaximumSize,
                     contentMode: PHImageContentMode.aspectFill,
                     options: options,
                     resultHandler: {
                         (image: UIImage?, info) in
-                        self.messenger.send(onChannel: "multi_image_picker/image/" + identifier + ".original", message: image!.jpegData(compressionQuality: CGFloat(compressionQuality)))
+                        self.messenger.send(onChannel: "multi_image_picker/image/" + identifier + ".original", message: image?.jpegData(compressionQuality: CGFloat(compressionQuality)))
                 })
 
                 if(PHInvalidImageRequestID != ID) {
