@@ -1,6 +1,7 @@
-import 'package:flutter/material.dart';
 import 'dart:async';
+import 'dart:typed_data';
 
+import 'package:flutter/material.dart';
 import 'package:multi_image_picker/multi_image_picker.dart';
 
 void main() => runApp(new MyApp());
@@ -79,6 +80,13 @@ class _MyAppState extends State<MyApp> {
             RaisedButton(
               child: Text("Pick images"),
               onPressed: loadAssets,
+            ),
+            RaisedButton(
+              child: Text("Get bytes of first selected"),
+              onPressed: () async {
+                ByteData byteData = await images.first.getByteData(quality: 80);
+                print("success");
+              },
             ),
             Expanded(
               child: buildGridView(),
