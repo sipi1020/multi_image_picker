@@ -134,7 +134,7 @@ public class SwiftMultiImagePickerPlugin: NSObject, FlutterPlugin {
 
                 let ID: PHImageRequestID = manager.requestImage(
                     for: asset,
-                    targetSize: PHImageManagerMaximumSize,
+                    targetSize: CGSize(width: asset.pixelWidth, height: asset.pixelHeight),
                     contentMode: PHImageContentMode.aspectFill,
                     options: options,
                     resultHandler: {
