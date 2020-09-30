@@ -12,7 +12,7 @@ A new flutter plugin project.
   s.license          = { :file => '../LICENSE' }
   s.author           = { 'Radoslav Vitanov' => 'radoslav.vitanov@icloud.com' }
   s.source           = { :path => '.' }
-  s.source_files = 'Classes/**/*.swift', 'Classes/**/*.m'
+  s.source_files = 'Classes/**/*.swift', 'Classes/**/*.{h,m}'
   s.public_header_files = 'Classes/**/*.h'
   s.dependency 'Flutter'
 #  s.dependency 'BSImagePicker', '~> 2.10.3'
